@@ -188,11 +188,17 @@ class Router:
 
 
     ## send out route update
+    # must encode packet - / is sending router, // seperates the link and cost, /// seperates routes
     # @param i Interface number on which to send out a routing update
     def send_routes(self, i):
-        # TODO: Send out a routing table update
+        route = self.name + "/" #encoding the name of the sending router
+        for k, v in self.rt_tbl_D.items():  #for each key,value pair in the routing table
+            for link, cost in v.items():    #for each link, and cost in the above value
+                route += str(k) + "//" + str(link) + "//" + str(cost) + "///"   #append the key (destination), link (sending router), and cost
+        print(self.rt_tbl_D)
+        print(route)
         #create a routing table update packet
-        p = NetworkPacket(0, 'control', 'DUMMY_ROUTING_TABLE')
+        p = NetworkPacket(0, 'control', route)
         try:
             print('%s: sending routing update "%s" from interface %d' % (self, p, i))
             self.intf_L[i].put(p.to_byte_S(), 'out', True)

@@ -1,4 +1,3 @@
-import pprint
 import queue
 import threading
 from collections import OrderedDict, defaultdict
@@ -141,7 +140,6 @@ class Router:
         self.intf_L = [Interface(max_queue_size) for _ in range(len(cost_D))]
         #save neighbors and interfeces on which we connect to them
         self.cost_D = cost_D    # {neighbor: {interface: cost}}
-        #TODO: set up the routing table for connected hosts
         self.rt_tbl_D = {dest:{self.name: cost for key,cost in cost_D[dest].items()} for dest in cost_D} #{destination: {name: {cost}}
         self.rt_tbl_D[self.name] = {self.name: 0}   #setting own name to name in the dictionary
         print('%s: Initialized routing table' % self)
@@ -212,6 +210,11 @@ class Router:
     def update_routes(self, p, i):
         #TODO: add logic to update the routing tables and
         # possibly send out routing updates
+        print("update route method")
+        for k, v in self.rt_tbl_D.items():
+            print(self.rt_tbl_D[self.name])
+
+
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
 

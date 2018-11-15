@@ -19,25 +19,25 @@ if __name__ == '__main__':
     host_3 = network_3.Host('H3')
     object_L.append(host_3)
     # create routers and cost tables for reaching neighbors
-    cost_D = {'H1': {0: 3}, 'H2': {1: 1}, 'RB': {1: 1}, 'RC': {0: 2}}  # {neighbor: {interface: cost}}
+    cost_D = {'H1': {0: 1}, 'H2': {1: 2}, 'RB': {3: 1}, 'RC': {4: 2}}  # {neighbor: {interface: cost}}
     router_a = network_3.Router(name='RA',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_a)
 
-    cost_D = {'RA': {0: 1}, 'RD': {0: 1}}  # {neighbor: {interface: cost}}
+    cost_D = {'RA': {0: 1}, 'RD': {1: 2}}  # {neighbor: {interface: cost}}
     router_b = network_3.Router(name='RB',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_b)
 
-    cost_D = {'RA': {0: 1}, 'RD': {0: 1}}  # {neighbor: {interface: cost}}
+    cost_D = {'RA': {0: 2}, 'RD': {1: 1}}  # {neighbor: {interface: cost}}
     router_c = network_3.Router(name='RC',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_c)
 
-    cost_D = {'RB': {0: 1}, 'RC': {1: 1}, 'H3': {0: 1}}  # {neighbor: {interface: cost}}
+    cost_D = {'RB': {0: 2}, 'RC': {1: 1}, 'H3': {3: 1}}  # {neighbor: {interface: cost}}
     router_d = network_3.Router(name='RD',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
@@ -55,7 +55,6 @@ if __name__ == '__main__':
     link_layer.add_link(link_3.Link(router_b, 0, router_d, 0))
     link_layer.add_link(link_3.Link(router_c, 1, router_d, 0))
     link_layer.add_link(link_3.Link(router_d, 0, host_3, 0))
-
 
     # start all the objects
     thread_L = []

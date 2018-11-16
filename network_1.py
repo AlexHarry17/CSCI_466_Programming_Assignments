@@ -1,3 +1,4 @@
+import math
 import pprint
 import queue
 import threading
@@ -213,6 +214,16 @@ class Router:
     def update_routes(self, p, i):
         #TODO: add logic to update the routing tables and
         # possibly send out routing updates
+        neighbors = list(self.rt_tbl_D.keys()) # first dictionary value. All of the neighbors
+        print("routing table: ", self.rt_tbl_D)
+        print("neighbors: ", neighbors)
+        for j in range(len(neighbors)): # loops through avaialable neighbors
+            host = self.rt_tbl_D[neighbors[j]]  # host is inner dictionary of the neighbors
+            key = list(host.keys()) # the key of the inner dictionary, it is the router
+            host.update({key[0]: math.inf}) # updates router weight to infinity
+            print("infinity routing table: ", self.rt_tbl_D)
+            # host.update({key[0]: self.cost_D[i]})
+        self.print_routes()
 
         #routes in format: destination/sending router/link
         #split by /// to get sending router split off

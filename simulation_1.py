@@ -59,7 +59,6 @@ if __name__ == '__main__':
     host_1.udt_send('H2', 'MESSAGE_FROM_H1')
     sleep(simulation_time)
 
-
     #join all threads
     for o in object_L:
         o.stop = True

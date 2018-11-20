@@ -2,6 +2,7 @@ import pprint
 import queue
 import threading
 from collections import OrderedDict, defaultdict
+from time import sleep
 
 ## wrapper class for a queue of packets
 class Interface:
@@ -141,9 +142,13 @@ class Router:
         self.intf_L = [Interface(max_queue_size) for _ in range(len(cost_D))]
         #save neighbors and interfeces on which we connect to them
         self.cost_D = cost_D    # {neighbor: {interface: cost}}
-        #TODO: set up the routing table for connected hosts
-        self.rt_tbl_D = {dest:{self.name: cost for key,cost in cost_D[dest].items()} for dest in cost_D} #{destination: {name: {cost}}
-        self.rt_tbl_D[self.name] = {self.name: 0}   #setting own name to name in the dictionary
+        self.routing_table_Dict = cost_D.copy()
+        self.total_rt = defaultdict(dict)
+        for n_name, n_info in self.cost_D.items():
+            for interface, cost in n_info.items():
+                self.total_rt[name][n_name] = [cost]
+        #self.routing_table_Dict = {dest:{self.name: cost for key,cost in cost_D[dest].items()} for dest in cost_D} #{destination: {name: {cost}}
+        #self.routing_table_Dict[self.name] = {self.name: 0}   #setting own name to name in the dictionary
         print('%s: Initialized routing table' % self)
         self.print_routes()
 
@@ -188,15 +193,16 @@ class Router:
 
 
     ## send out route update
-    # must encode packet - / is sending router, // seperates the link and cost, /// seperates routes
+    # must encode packet - /// is sending router, / seperates the link and cost, // seperates routes
     # @param i Interface number on which to send out a routing update
     def send_routes(self, i):
-        route = self.name + "/" #encoding the name of the sending router
-        for k, v in self.rt_tbl_D.items():  #for each key,value pair in the routing table
+        route = self.name + "///" #encoding the name of the sending router
+        for k, v in self.routing_table_Dict.items():  #for each key,value pair in the routing table
             for link, cost in v.items():    #for each link, and cost in the above value
-                route += str(k) + "//" + str(link) + "//" + str(cost) + "///"   #append the key (destination), link (sending router), and cost
-        print(self.rt_tbl_D)
-        print(route)
+                #print("link", link)
+                route += str(k) + "/" + str(link) + "/" + str(cost) + "//"   #append the key (destination), link (sending router), and cost
+        #print(self.routing_table_Dict)
+        #print(route)
         #create a routing table update packet
         p = NetworkPacket(0, 'control', route)
         try:
@@ -210,40 +216,86 @@ class Router:
     ## forward the packet according to the routing table
     #  @param p Packet containing routing information
     def update_routes(self, p, i):
-        #TODO: add logic to update the routing tables and
-        # possibly send out routing updates
+        made_update = False                                                    #variable to keep track of whether we've updated
+
+        packet_table = p.data_S.split("///")                                    #break packet down into components
+
+        table_routes = packet_table[1].split("//")                              #break packet into individual routes
+
+        length = len(table_routes)
+        table_routes = table_routes[:length-1]                                  #remove last route as it's invalid ('')
+
+        title = packet_table[0]                                                 #save title that's at beginning of packet
+        for table_route in table_routes:                                        #for each route in the packet_table
+            route = table_route.split("/")
+
+            self.total_rt[title][route[0]] = [int(route[2])]                    #create new entry in  global routing table
+
+            if route[0] == self.name:                                                       #if the route is this routers
+                neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interace, is itself, but is needed
+                self.routing_table_Dict[route[0]] = {int(neighbor_inf[0]):0}                          #set the r_tbl_D to 0
+                self.total_rt[self.name][route[0]] = [0]                                    #update dictionary table of routes with distance (0 since it's its self)
+                continue
+
+            if route[0] not in self.cost_D and  route[0] not in self.routing_table_Dict:              #route not a neighbor or in table
+                neighbor_D  = list(self.cost_D[title].values())                             #neighbor distance
+                neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interaface
+                self.routing_table_Dict[route[0]] = {int(neighbor_inf[0]):int(route[2]) + neighbor_D[0]} #distance to new node is the distance to neighbor + distance from neighbor to node
+                self.total_rt[self.name][route[0]] = [int(route[2]) + neighbor_D[0]]        #update dictionary table of routes with distance
+                made_update = True                                                         #updated table
+
+            elif route[0] not in self.cost_D and  route[0] in self.routing_table_Dict:                #route not a neighbor but is in table already
+                neighbor_D  = list(self.cost_D[title].values())                              #neighbor distance
+                neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interface
+                available_D = list(self.routing_table_Dict[route[0]].values())                        #the current distance in the table
+                if available_D[0] > int(neighbor_D[0]) + int(route[2]):                               #if there is a shorter distance available
+                    self.routing_table_Dict[route[0]] = {int(neighbor_inf[0]):int(route[2]) + neighbor_D[0]}    #calculate new distance
+                    self.total_rt[self.name][route[0]] = [int(route[2]) + neighbor_D[0]]     #update dictionary table of routes with distance
+                    made_update = True                                                      #was updated
+
+        if made_update: #if we've updated, tell all neighbors
+            for neighbor_name, neighbor_info in self.cost_D.items():
+                for interface,cost in neighbor_info.items():
+                    if 'H' not in neighbor_name: #if neighbor is not a host
+                        self.send_routes(interface)
+
+            sleep(3)
+            self.print_routes()
+            sleep(3)
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
 
     ## Print routing table
     def print_routes(self):
-        #  Print the headerline
-        border=''
-        for neighbors in self.rt_tbl_D.keys():
-            border += '---------'
-        print(border)
-        # print the first row (Self, and destinations)
-        header = "|" + self.name + "   |   "
-        for dest in self.rt_tbl_D.keys():
-            header += dest + " |   "
-        print(header)
+        outline = '-'
+        print('\n')
+        sort = OrderedDict(sorted(self.total_rt.items()))         #sorting the table so the table is consistent on all routers
 
-        own_costs = ' |  ' + self.name + '   |    '
-        body = ''
-        for key in self.rt_tbl_D[self.name].keys():
-            for _ in range(len(self.rt_tbl_D)+1):
-                body += "------|"
-            body += "\n|"
+        line = self.name
+        for i, j in sort.items():                                 #for each k,v pair in the sorted table, print outline
+            outline += "------------"
+            line += ("   |   " + str(i))
+            #print("\t" + str(i), end='')
+        print(line, "   |")
+        print(outline)
 
-            body += key + "   |   "
-            for _, v in self.rt_tbl_D.items():
-                if key in v:
-                    val = v[key]
-                    if val == 1000:
-                        val = 'X'
-                body += str(val) + "  |   "
-        print(body)
-        print(border)
+        interfaces = []                                              #creat empty list of hosts / routers for quick access to names
+        for i,j in sort.items():                                    #for each router / host in the routing table, append the name of that router / host to the list
+            for link,cost in j.items():
+                if not link in interfaces:
+                    interfaces.append(link)
+        interfaces = sorted(interfaces)
+
+        for interface in interfaces:                                     #for each router / host in the network
+            print(str(interface) + "   |   ", end='')                       #print the name of the router / host
+            for i, j in sort.items():                                #for each k/v pair in the host, print the costs in the table
+                if not interface in j.keys():
+                    print(" ~    |  ", end='')
+                else:
+                    for link,cost in j.items():
+                        if link == interface:
+                            print(str(cost) + "   |  ", end='')          #printing the cost throughout the table
+            print('\n')
 
     ## thread target for the host to keep forwarding data
     def run(self):

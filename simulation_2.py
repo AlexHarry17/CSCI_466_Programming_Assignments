@@ -55,6 +55,7 @@ if __name__ == '__main__':
         if str(type(obj)) == "<class 'network_2.Router'>":
             obj.print_routes()
 
+    sleep(3)
     #send packet from host 1 to host 2
     host_1.udt_send('H2', 'MESSAGE_FROM_H1')
     sleep(simulation_time)

@@ -142,13 +142,13 @@ class Router:
         self.intf_L = [Interface(max_queue_size) for _ in range(len(cost_D))]
         #save neighbors and interfeces on which we connect to them
         self.cost_D = cost_D    # {neighbor: {interface: cost}}
-        self.rt_tbl_D = cost_D.copy()
+        self.routing_table_Dict = cost_D.copy()
         self.total_rt = defaultdict(dict)
         for n_name, n_info in self.cost_D.items():
             for interface, cost in n_info.items():
                 self.total_rt[name][n_name] = [cost]
-        #self.rt_tbl_D = {dest:{self.name: cost for key,cost in cost_D[dest].items()} for dest in cost_D} #{destination: {name: {cost}}
-        #self.rt_tbl_D[self.name] = {self.name: 0}   #setting own name to name in the dictionary
+        #self.routing_table_Dict = {dest:{self.name: cost for key,cost in cost_D[dest].items()} for dest in cost_D} #{destination: {name: {cost}}
+        #self.routing_table_Dict[self.name] = {self.name: 0}   #setting own name to name in the dictionary
         print('%s: Initialized routing table' % self)
         self.print_routes()
 
@@ -197,11 +197,11 @@ class Router:
     # @param i Interface number on which to send out a routing update
     def send_routes(self, i):
         route = self.name + "///" #encoding the name of the sending router
-        for k, v in self.rt_tbl_D.items():  #for each key,value pair in the routing table
+        for k, v in self.routing_table_Dict.items():  #for each key,value pair in the routing table
             for link, cost in v.items():    #for each link, and cost in the above value
                 #print("link", link)
                 route += str(k) + "/" + str(link) + "/" + str(cost) + "//"   #append the key (destination), link (sending router), and cost
-        #print(self.rt_tbl_D)
+        #print(self.routing_table_Dict)
         #print(route)
         #create a routing table update packet
         p = NetworkPacket(0, 'control', route)
@@ -233,23 +233,23 @@ class Router:
 
             if route[0] == self.name:                                                       #if the route is this routers
                 neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interace, is itself, but is needed
-                self.rt_tbl_D[route[0]] = {int(neighbor_inf[0]):0}                          #set the r_tbl_D to 0
+                self.routing_table_Dict[route[0]] = {int(neighbor_inf[0]):0}                          #set the r_tbl_D to 0
                 self.total_rt[self.name][route[0]] = [0]                                    #update dictionary table of routes with distance (0 since it's its self)
                 continue
 
-            if route[0] not in self.cost_D and  route[0] not in self.rt_tbl_D:              #route not a neighbor or in table
+            if route[0] not in self.cost_D and  route[0] not in self.routing_table_Dict:              #route not a neighbor or in table
                 neighbor_D  = list(self.cost_D[title].values())                             #neighbor distance
                 neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interaface
-                self.rt_tbl_D[route[0]] = {int(neighbor_inf[0]):int(route[2]) + neighbor_D[0]} #distance to new node is the distance to neighbor + distance from neighbor to node
+                self.routing_table_Dict[route[0]] = {int(neighbor_inf[0]):int(route[2]) + neighbor_D[0]} #distance to new node is the distance to neighbor + distance from neighbor to node
                 self.total_rt[self.name][route[0]] = [int(route[2]) + neighbor_D[0]]        #update dictionary table of routes with distance
                 made_update = True                                                         #updated table
 
-            elif route[0] not in self.cost_D and  route[0] in self.rt_tbl_D:                #route not a neighbor but is in table already
+            elif route[0] not in self.cost_D and  route[0] in self.routing_table_Dict:                #route not a neighbor but is in table already
                 nighbor_D  = list(self.cost_D[title].values())                              #neighbor distance
                 neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interface
-                available_D = list(self.rt_tbl_D[route[0]].values())                        #the current distance in the table
-                if available_D[0] > int(n[0]) + int(route[2]):                               #if there is a shorter distance available
-                    self.rt_tbl_D[route[0]] = {int(neighbor_inf[0]):int(route[2]) + neighbor_D[0]}    #calculate new distance
+                available_D = list(self.routing_table_Dict[route[0]].values())                        #the current distance in the table
+                if available_D[0] > int(neighbor_D[0]) + int(route[2]):                               #if there is a shorter distance available
+                    self.routing_table_Dict[route[0]] = {int(neighbor_inf[0]):int(route[2]) + neighbor_D[0]}    #calculate new distance
                     self.total_rt[self.name][route[0]] = [int(route[2]) + neighbor_D[0]]     #update dictionary table of routes with distance
                     made_update = True                                                      #was updated
 

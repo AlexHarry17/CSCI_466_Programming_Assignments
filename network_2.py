@@ -185,16 +185,17 @@ class Router:
             print("-----------------------------")
             print("Forwarding from router:", self.name)
             print("Destination host:", p.dst)
-            print(self.total_rt)
-            print(self.routing_table_Dict)
-            calculated_route = self.routing_table_Dict.get(p.dst)               #get dictionary route for packet's destination address
+            #print(self.total_rt)
+            #print(self.routing_table_Dict)
+            forwarding = self.routing_table_Dict.get(p.dst)               #get dictionary route for packet's destination address
             #print(calculated_route)
-            for k,v in calculated_route.items():                                #for each interface / cost pair in the route
+            for k,v in forwarding.items():                                #for each interface / cost pair in the route
+                out_interface = k
                 print("Interface #:", k)
                 print("Cost value:", k)
             print("Message:", p.data_S)
             print("-----------------------------")
-            self.intf_L[1].put(p.to_byte_S(), 'out', True)
+            self.intf_L[k].put(p.to_byte_S(), 'out', True)
             print('%s: forwarding packet "%s" from interface %d to %d' % \
                 (self, p, i, 1))
         except queue.Full:

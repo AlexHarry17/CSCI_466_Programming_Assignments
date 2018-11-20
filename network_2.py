@@ -1,3 +1,4 @@
+import math
 import pprint
 import queue
 import threading
@@ -176,15 +177,32 @@ class Router:
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
         try:
-            # TODO: Here you will need to implement a lookup into the
+            neighbor = list(self.cost_D.keys()) # list of key values for router's neighbors
+            # print("Routing table: ", self.rt_tbl_D, "in interface: ", i)
+            # print(self, "....... Neighbor: ", neighbor, "out int: ", out_int )
+            # print("route table: ", self.rt_tbl_D[neighbor[i]], ".............................",neighbor, "self: ", self)
+            out_int = math.inf # starts out interface at inf
+            # print("out int: ", out_int)
+            weight = math.inf # sets initial weight to inf
+            for k in range(len(neighbor)): # loops through routers neighbors
+                route_table = self.rt_tbl_D
+                keys = list(self.rt_tbl_D[neighbor[k]].keys())  # list of keys
+                temp_rt_table = self.rt_tbl_D[neighbor[k]]  # this is the routing table of the neighbor that is being looked at
+                for j in range(len(keys)):  # loops through neighbors keys.  Not extremely necessary for this application
+                    if temp_rt_table[keys[j]] <= weight and i != keys[j]:    # enters if the weight of the link is less than current weight, Doesn't enter if checking incoming interface
+                        weight = temp_rt_table[keys[j]] # sets weight for later comparison
+                        out_int = keys[j]   # sets outgoing interface
+
+
             # forwarding table to find the appropriate outgoing interface
             # for now we assume the outgoing interface is 1
-            self.intf_L[1].put(p.to_byte_S(), 'out', True)
+            self.intf_L[out_int].put(p.to_byte_S(), 'out', True)
             print('%s: forwarding packet "%s" from interface %d to %d' % \
-                (self, p, i, 1))
+                (self, p, i, out_int))
         except queue.Full:
             print('%s: packet "%s" lost on interface %d' % (self, p, i))
             pass
+
 
 
     ## send out route update

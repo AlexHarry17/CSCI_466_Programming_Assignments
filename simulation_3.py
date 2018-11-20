@@ -73,7 +73,7 @@ if __name__ == '__main__':
             obj.print_routes()
 
     # send packet from host 1 to host 2
-    host_1.udt_send('H3', 'MESSAGE_FROM_H1')
+    host_1.udt_send('H3', 'Is there life on Mars?')
     sleep(simulation_time)
 
     # join all threads

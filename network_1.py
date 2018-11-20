@@ -245,7 +245,7 @@ class Router:
                 made_update = True                                                         #updated table
 
             elif route[0] not in self.cost_D and  route[0] in self.routing_table_Dict:                #route not a neighbor but is in table already
-                nighbor_D  = list(self.cost_D[title].values())                              #neighbor distance
+                neighbor_D  = list(self.cost_D[title].values())                              #neighbor distance
                 neighbor_inf =  list(self.cost_D[title].keys())                             #neighbor interface
                 available_D = list(self.routing_table_Dict[route[0]].values())                        #the current distance in the table
                 if available_D[0] > int(neighbor_D[0]) + int(route[2]):                               #if there is a shorter distance available

@@ -6,7 +6,7 @@ import sys
 
 ##configuration parameters
 router_queue_size = 0  # 0 means unlimited
-simulation_time = 1  # give the network sufficient time to execute transfers
+simulation_time = 5  # give the network sufficient time to execute transfers
 
 if __name__ == '__main__':
     object_L = []  # keeps track of objects, so we can kill their threads at the end
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     host_3 = network_3.Host('H3')
     object_L.append(host_3)
     # create routers and cost tables for reaching neighbors
-    cost_D = {'H1': {0: 1}, 'H2': {1: 2}, 'RB': {2: 1}, 'RC': {3: 2}}  # {neighbor: {interface: cost}}
+    cost_D = {'H1': {0: 1}, 'RB': {2: 1}, 'RC': {3: 2}, 'H2': {1: 2}}  # {neighbor: {interface: cost}}
     router_a = network_3.Router(name='RA',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
@@ -73,7 +73,7 @@ if __name__ == '__main__':
             obj.print_routes()
 
     # send packet from host 1 to host 2
-    host_1.udt_send('H2', 'MESSAGE_FROM_H1')
+    host_1.udt_send('H3', 'MESSAGE_FROM_H1')
     sleep(simulation_time)
 
     # join all threads

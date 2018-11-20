@@ -181,9 +181,19 @@ class Router:
     #  @param i Incoming interface number for packet p
     def forward_packet(self, p, i):
         try:
-            # TODO: Here you will need to implement a lookup into the
-            # forwarding table to find the appropriate outgoing interface
-            # for now we assume the outgoing interface is 1
+            #routers = []
+            #for key in self.routing_table_Dict:
+                #print(key)
+            print("-----------------------------")
+            print("Forwarding from router:", self.name)
+            print("Destination host:", p.dst)
+            calculated_route = self.routing_table_Dict.get(p.dst)               #get dictionary route for packet's destination address
+            #print(calculated_route)
+            for k,v in calculated_route.items():                                #for each interface / cost pair in the route
+                print("Interface #:", k)
+                print("Cost value:", k)
+            print("Message:", p.data_S)
+            print("-----------------------------")
             self.intf_L[1].put(p.to_byte_S(), 'out', True)
             print('%s: forwarding packet "%s" from interface %d to %d' % \
                 (self, p, i, 1))
@@ -259,9 +269,7 @@ class Router:
                     if 'H' not in neighbor_name: #if neighbor is not a host
                         self.send_routes(interface)
 
-            sleep(3)
             self.print_routes()
-            sleep(3)
         print('%s: Received routing update %s from interface %d' % (self, p, i))
 
 

@@ -6,7 +6,7 @@ import sys
 
 ##configuration parameters
 router_queue_size = 0  # 0 means unlimited
-simulation_time = 1  # give the network sufficient time to execute transfers
+simulation_time = 5  # give the network sufficient time to execute transfers
 
 if __name__ == '__main__':
     object_L = []  # keeps track of objects, so we can kill their threads at the end
@@ -16,28 +16,26 @@ if __name__ == '__main__':
     object_L.append(host_1)
     host_2 = network_3.Host('H2')
     object_L.append(host_2)
-    host_3 = network_3.Host('H3')
-    object_L.append(host_3)
-    # create routers and cost tables for reaching neighbors
-    cost_D = {'H1': {0: 1}, 'H2': {1: 2}, 'RB': {2: 1}, 'RC': {3: 2}}  # {neighbor: {interface: cost}}
+        # create routers and cost tables for reaching neighbors
+    cost_D = {'H1': {0: 1}, 'RB': {1: 2}, 'RC': {2: 3}}  # {neighbor: {interface: cost}}
     router_a = network_3.Router(name='RA',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_a)
 
-    cost_D = {'RA': {0: 1}, 'RD': {1: 2}}  # {neighbor: {interface: cost}}
+    cost_D = {'RA': {0: 2}, 'RD': {1: 3}}  # {neighbor: {interface: cost}}
     router_b = network_3.Router(name='RB',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_b)
 
-    cost_D = {'RA': {0: 2}, 'RD': {1: 1}}  # {neighbor: {interface: cost}}
+    cost_D = {'RA': {0: 3}, 'RD': {1: 2}}  # {neighbor: {interface: cost}}
     router_c = network_3.Router(name='RC',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
     object_L.append(router_c)
 
-    cost_D = {'RB': {0: 2}, 'RC': {1: 1}, 'H3': {2: 1}}  # {neighbor: {interface: cost}}
+    cost_D = {'RB': {0: 3}, 'RC': {1: 2}, 'H2': {2: 1}}  # {neighbor: {interface: cost}}
     router_d = network_3.Router(name='RD',
                                 cost_D=cost_D,
                                 max_queue_size=router_queue_size)
@@ -49,12 +47,11 @@ if __name__ == '__main__':
 
     # add all the links - need to reflect the connectivity in cost_D tables above
     link_layer.add_link(link_3.Link(host_1, 0, router_a, 0))
-    link_layer.add_link(link_3.Link(host_2, 0, router_a, 1))
-    link_layer.add_link(link_3.Link(router_a, 2, router_b, 0))
-    link_layer.add_link(link_3.Link(router_a, 3, router_c, 0))
+    link_layer.add_link(link_3.Link(router_a, 1, router_b, 0))
+    link_layer.add_link(link_3.Link(router_a, 2, router_c, 0))
     link_layer.add_link(link_3.Link(router_b, 1, router_d, 0))
     link_layer.add_link(link_3.Link(router_c, 1, router_d, 1))
-    link_layer.add_link(link_3.Link(router_d, 2, host_3, 0))
+    link_layer.add_link(link_3.Link(router_d, 2, host_2, 0))
 
     # start all the objects
     thread_L = []
@@ -76,6 +73,8 @@ if __name__ == '__main__':
     host_1.udt_send('H2', 'MESSAGE_FROM_H1')
     sleep(simulation_time)
 
+    host_2.udt_send('H1', 'MESSAGE_FROM_H2')
+    sleep(simulation_time)
     # join all threads
     for o in object_L:
         o.stop = True

@@ -6,7 +6,7 @@ import sys
 
 ##configuration parameters
 router_queue_size = 0 #0 means unlimited
-simulation_time = 1   #give the network sufficient time to execute transfers
+simulation_time = 5   #give the network sufficient time to execute transfers
 
 if __name__ == '__main__':
     object_L = [] #keeps track of objects, so we can kill their threads at the end
@@ -56,7 +56,7 @@ if __name__ == '__main__':
             obj.print_routes()
 
     #send packet from host 1 to host 2
-    host_1.udt_send('H2', 'MESSAGE_FROM_H1')
+    host_1.udt_send('H2', 'Is there life on Mars?')
     sleep(simulation_time)
 
     #join all threads

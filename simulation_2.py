@@ -57,7 +57,9 @@ if __name__ == '__main__':
 
     #sleep(3)
     #send packet from host 1 to host 2
-    host_1.udt_send('H2', 'Is there life on Mars?')
+    host_1.udt_send('H2', 'Host 1 send')
+    sleep(simulation_time)
+    host_2.udt_send('H1', 'Host 2 reply')
     sleep(simulation_time)
 
 

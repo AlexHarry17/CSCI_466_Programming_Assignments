@@ -51,9 +51,13 @@ class MPLSFrame:
     ##@param dst: address of the destination host
     # @param data_S: packet payload
     # @param priority: packet priority
-    def __init__(self, label_S, data_S):
+    def __init__(self, label_S, data_S, priority_s, stack_s, time_to_live_s):
         self.label_S = label_S
         self.data_S = data_S
+        self.priority = priority_s
+        self.stack_s = stack_s
+        self.time_to_live = time_to_live_s
+
         # TODO: add priority to the packet class
 
     ## called when printing the object
@@ -63,7 +67,7 @@ class MPLSFrame:
     ## convert packet to a byte string for transmission over links
     def to_byte_S(self):
         byte_S = str(self.label_S).zfill(self.label_S_length)
-        byte_S += self.data_S
+        byte_S += (self.data_S + self.priority + self.stack_s, self.time_to_live)
         return byte_S
 
     ## extract a packet object from a byte string
@@ -87,6 +91,7 @@ class NetworkPacket:
     def __init__(self, dst, data_S, priority=0):
         self.dst = dst
         self.data_S = data_S
+        self.priority = priority
         # TODO: add priority to the packet class
 
     ## called when printing the object

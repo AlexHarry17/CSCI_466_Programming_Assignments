@@ -271,8 +271,7 @@ class Router:
             out_interface = self.frwd_tbl_D[i][3] # gets out interface from forwarding table
             out_link_label = 'Network'
             packet = payload
-            #TODO not sure if needed/ where decapsulation occurs.
-            print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr[0] + m_fr[1]))
+            print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, LinkFrame(out_link_label, payload)))
 
         # else, not important (copied from queue full (except section))
         else:

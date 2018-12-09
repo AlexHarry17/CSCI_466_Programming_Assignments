@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # decap = true if needs decapsulation
     decap_tbl_D = {0: False, 1: False, 2: True, 3: True}  # table used to decapsulate network packets from MPLS frames
     router_a = Router(name='RA',
-                      intf_capacity_L=[500, 500],
+                      intf_capacity_L=[500, 500, 500, 500],
                       encap_tbl_D=encap_tbl_D,
                       frwd_tbl_D=frwd_tbl_D,
                       decap_tbl_D=decap_tbl_D,
@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     decap_tbl_D = {0: True, 1: True, 2: False}  # True if decapsulation is needed
     router_d = Router(name='RD',
-                      intf_capacity_L=[500, 500],
+                      intf_capacity_L=[500, 500, 500],
                       encap_tbl_D=encap_tbl_D,
                       frwd_tbl_D=frwd_tbl_D,
                       decap_tbl_D=decap_tbl_D,

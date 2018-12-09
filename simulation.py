@@ -19,9 +19,12 @@ if __name__ == '__main__':
     object_L.append(host_2)
 
     # create routers and routing tables for connected clients (subnets)
-    encap_tbl_D = {}  # table used to encapsulate network packets into MPLS frames
-    frwd_tbl_D = {}  # table used to forward MPLS frames
-    decap_tbl_D = {}  # table used to decapsulate network packets from MPLS frames
+    #encap True if the encapsulation is needed
+    encap_tbl_D = {0: True, 1: False}  # table used to encapsulate network packets into MPLS frames
+    # {in interface [in label, out label, destination, out interface}
+    frwd_tbl_D = {0: [None, 1, 'H2', 1], 1: [2, None, 'H1', 0]}  # table used to forward MPLS frames
+    #decap = true if needs decapsulation
+    decap_tbl_D = {0: False, 1: True}  # table used to decapsulate network packets from MPLS frames
     router_a = Router(name='RA',
                       intf_capacity_L=[500, 500],
                       encap_tbl_D=encap_tbl_D,
@@ -30,9 +33,9 @@ if __name__ == '__main__':
                       max_queue_size=router_queue_size)
     object_L.append(router_a)
 
-    encap_tbl_D = {}
-    frwd_tbl_D = {}
-    decap_tbl_D = {}
+    encap_tbl_D = {0: False, 1: True} # True if incapsulation needed
+    frwd_tbl_D = {0: [1, None, 'H2', 1], 1: [None, 2, 'H1', 0]} # {in_interface, out interface}
+    decap_tbl_D = {0: True, 1: False} # True if decapsulation is needed
     router_b = Router(name='RB',
                       intf_capacity_L=[500, 100],
                       encap_tbl_D=encap_tbl_D,

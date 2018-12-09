@@ -267,7 +267,7 @@ class Router:
             out_link_label = 'MPLS'
             packet = MPLSFrame(out_label, payload).to_byte_S()  #makes packet an MPLS Frame
         #if table key isn't in forwarding table, check decapsulation table
-        else:
+        elif self.frwd_tbl_D[i][1] is None:
             out_interface = self.frwd_tbl_D[i][3] # gets out interface from forwarding table
             out_link_label = 'Network'
             packet = payload
@@ -275,9 +275,9 @@ class Router:
             print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr[1]))
 
         # else, not important (copied from queue full (except section))
-        # else:
-        #     print('%s: frame "%s" lost on interface %d' % (self, packet, i))
-        #     pass
+        else:
+            print('%s: frame "%s" lost on interface %d' % (self, packet, i))
+            pass
 
 
         try:

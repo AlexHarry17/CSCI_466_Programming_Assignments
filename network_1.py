@@ -227,7 +227,6 @@ class Router:
         print('%s: encapsulated packet "%s" as MPLS frame "%s"' % (self, packet, m_fr))
         #send the encapsulated packet for processing as MPLS frame
         #self.process_MPLS_frame(m_fr, i)
-        
         ## copied from process MLPS frame right under
         try:
             fr = LinkFrame('MPLS', m_fr.to_byte_S())
@@ -267,12 +266,13 @@ class Router:
             out_link_label = 'MPLS'
             packet = MPLSFrame(out_label, payload).to_byte_S()  #makes packet an MPLS Frame
         #if table key isn't in forwarding table, check decapsulation table
-        elif self.frwd_tbl_D[i][1] is None:
+        #elif self.frwd_tbl_D[i][1]  :
+        elif self.decap_tbl_D[i]:
             out_interface = self.frwd_tbl_D[i][3] # gets out interface from forwarding table
             out_link_label = 'Network'
             packet = payload
             #TODO not sure if needed/ where decapsulation occurs.
-            print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr[1]))
+            print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr[0] + m_fr[1]))
 
         # else, not important (copied from queue full (except section))
         else:

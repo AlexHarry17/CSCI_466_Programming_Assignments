@@ -7,7 +7,7 @@ from copy import deepcopy
 
 ##configuration parameters
 router_queue_size = 0  # 0 means unlimited
-simulation_time = 18  # give the network sufficient time to execute transfers
+simulation_time = 20 # give the network sufficient time to execute transfers
 
 if __name__ == '__main__':
     object_L = []  # keeps track of objects, so we can kill their threads at the end
@@ -62,8 +62,8 @@ if __name__ == '__main__':
     object_L.append(router_c)
 
     encap_tbl_D = {0: False, 1: False, 2: True}  # True if incapsulation needed
-    frwd_tbl_D = {0: [4, None, 'H3', 2],
-                  1: [3, None, 'H3', 2],
+    frwd_tbl_D = {0: [2, None, 'H3', 2],
+                  1: [1, 4, 'H3', 2],
                   2: [None, 5, 'H1', 0]}  # # {in interface [in label, out label, destination, out interface}
 
     decap_tbl_D = {0: True, 1: True, 2: False}  # True if decapsulation is needed
@@ -100,6 +100,8 @@ if __name__ == '__main__':
     for i in range(5):
         priority = i % 2
         host_1.udt_send('H3', 'MESSAGE_%d_FROM_H1' % i, priority)
+        host_2.udt_send('H3', 'MESSAGE_%d_FROM_H2' % i, priority)
+
         #host_2.udt_send('H3', 'MESSAGE_%d_FROM_H2' % i, priority)
 
 

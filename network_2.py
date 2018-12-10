@@ -258,19 +258,28 @@ class Router:
         # keys = self.frwd_tbl_D.keys()
         # table = self.frwd_tbl_D[i]
         # out = self.frwd_tbl_D[i][3]
+        in_label = int(m_fr[:1])
+        out_label = None
+        out_interface = None
 
-        if self.frwd_tbl_D[i][1] is not None:  # enters if there is an out label
-            out_label = self.frwd_tbl_D[i][1]  # sets out label based on forwarding table
-            out_interface = self.frwd_tbl_D[i][3]  # sets out interface from forwarding table
+        for j in self.frwd_tbl_D:
+            if self.frwd_tbl_D[j][0] == in_label:
+                out_label = self.frwd_tbl_D[j][1]
+                out_interface = self.frwd_tbl_D[j][3]
+                break
+        if not self.decap_tbl_D[i]:# enters if there is an out label
+            # out_label = self.frwd_tbl_D[i][1]  # sets out label based on forwarding table
+            #
+            # out_interface = self.frwd_tbl_D[i][3]  # sets out interface from forwarding table
             out_link_label = 'MPLS'
             packet = MPLSFrame(out_label, payload).to_byte_S()  # makes packet an MPLS Frame
         # if table key isn't in forwarding table, check decapsulation table
         else:
-            out_interface = self.frwd_tbl_D[i][3]  # gets out interface from forwarding table
+            # out_interface = self.frwd_tbl_D[i][3]  # gets out interface from forwarding table
             out_link_label = 'Network'
             packet = payload
             # TODO not sure if needed/ where decapsulation occurs.
-            print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr[1]))
+            print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr))
 
         # else, not important (copied from queue full (except section))
         # else:
@@ -278,6 +287,7 @@ class Router:
         #     pass
 
         try:
+
             fr = LinkFrame(out_link_label, payload)
             self.intf_L[out_interface].put(fr.to_byte_S(), 'out', True)
             print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, out_interface))

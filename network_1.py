@@ -72,7 +72,7 @@ class MPLSFrame:
     def from_byte_S(self, byte_S):
         dst = byte_S[0 : MPLSFrame.label_S_length].strip('0')
         data_S = byte_S[MPLSFrame.label_S_length : ]        
-        return dst, data_S
+        return dst+data_S
 
 
         
@@ -276,7 +276,8 @@ class Router:
         # else:
         #     print('%s: frame "%s" lost on interface %d' % (self, packet, i))
         #     pass
-        in_label = int(m_fr[0])
+        in_label = int(m_fr[0:1])
+        payload = m_fr[1:]
         out_interface = None
         for j in self.frwd_tbl_D:
 
@@ -284,11 +285,11 @@ class Router:
                 out_interface = self.frwd_tbl_D[j][3]
                 if self.decap_tbl_D[i] is False:
                     out_link_label = 'MPLS'
-                    fr = MPLSFrame(out_link_label, payload)
+                    fr = LinkFrame(out_link_label, m_fr)
                     print('%s: processing MPLS frame "%s"' % (self, fr))
                 else:
                     out_link_label = 'Network'
-                    fr = MPLSFrame(out_link_label, payload)
+                    fr = LinkFrame(out_link_label, m_fr)
                     print('%s: processing MPLS frame "%s"' % (self, fr))
                     print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, fr.data_S, fr))
 

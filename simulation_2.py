@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # create routers and routing tables for connected clients (subnets)
     # encap True if the encapsulation is needed
     encap_tbl_D = {0: True, 1: True, 2: False, 3: False}  # table used to encapsulate network packets into MPLS frames
-    # {in interface [in label, out label, destination, out interface}
+    # {in interface [in label, dest}  {out label, out interface}
     frwd_tbl_D = {0: [None, 1, 'H3', 2], 1: [None, 2, 'H3', 3], 2: [6, None, 'H1', 0],
                   3: [8, None, 'H2', 1]}  # table used to forward MPLS frames
     # decap = true if needs decapsulation

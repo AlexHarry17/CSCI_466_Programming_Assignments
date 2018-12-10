@@ -73,7 +73,7 @@ class MPLSFrame:
     def from_byte_S(self, byte_S):
         dst = byte_S[0: MPLSFrame.label_S_length].strip('0')
         data_S = byte_S[MPLSFrame.label_S_length:]
-        return dst, data_S
+        return dst + data_S
 
 
 ## Implements a network layer packet
@@ -238,64 +238,10 @@ class Router:
     def process_MPLS_frame(self, m_fr, i):
         # TODO: implement MPLS forward, or MPLS decapsulation if this is the last hop router for the path
 
-        # setting the defaul values before we assign them based on the table keys
-        # they will be assigned based on forwarding table D or decapsulated table D
-        # out_label = None
-        # in_label = int(m_fr[0])
-        # out_interface = None
-        # out_link_label = None
-        packet = None
-        # TODO is payload the message?
-        payload = m_fr[1]  # payload is message
+        in_label = m_fr[0:1]
+        message = m_fr[1:]
 
-        # for now forward the frame out interface 1
-
-        # grab the key then check it with forwarding table key
-        # table_key = (in_label, i)
-        # #first we check forwarding table keys
-        # keys = self.frwd_tbl_D.keys()
-        # table = self.frwd_tbl_D[i]
-        # out = self.frwd_tbl_D[i][3]
-        # if self.frwd_tbl_D[i][1] is not None:   # enters if there is an out label
-        #     out_label = self.frwd_tbl_D[i][1]   #  sets out label based on forwarding table
-        #     out_interface = self.frwd_tbl_D[i][3]   # sets out interface from forwarding table
-        #     out_link_label = 'MPLS'
-        #     packet = MPLSFrame(out_label, payload).to_byte_S()  #makes packet an MPLS Frame
-        # #if table key isn't in forwarding table, check decapsulation table
-        # #elif self.frwd_tbl_D[i][1]  :
-        # elif self.decap_tbl_D[i]:
-        #     out_interface = self.frwd_tbl_D[i][3] # gets out interface from forwarding table
-        #     out_link_label = 'Network'
-        #     packet = payload
-        #     print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, LinkFrame(out_link_label, payload)))
-        #
-        # # else, not important (copied from queue full (except section))
-        # else:
-        #     print('%s: frame "%s" lost on interface %d' % (self, packet, i))
-        #     pass
-        print("........................", self)
-
-        in_label = int(m_fr[0])
-        out_interface = None
-        fr = None
-        for j in self.frwd_tbl_D:
-
-            if self.frwd_tbl_D[j][0] == in_label:
-                out_interface = self.frwd_tbl_D[j][3]
-                if self.decap_tbl_D[i] is False:
-                    out_link_label = 'MPLS'
-                    fr = MPLSFrame(out_link_label, payload)
-                    print('%s: processing MPLS frame "%s"' % (self, fr))
-                else:
-                    out_link_label = 'Network'
-                    fr = MPLSFrame(out_link_label, payload)
-                    print('%s: processing MPLS frame "%s"' % (self, fr))
-                    print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, fr.data_S, fr))
-
-                    # packet = MPLSFrame(out_label, payload).to_byte_S()  #makes packet an MPLS Frame
-                # if table key isn't in forwarding table, check decapsulation table
-                # elif self.frwd_tbl_D[i][1]  :
-                # out_interface = self.frwd_tbl_D[i][3] # gets out interface from forwarding table
+        for
 
         try:
             fr = LinkFrame(out_link_label, payload)

@@ -24,8 +24,7 @@ if __name__ == '__main__':
     # encap True if the encapsulation is needed
     encap_tbl_D = {0: True, 1: True, 2: False, 3: False}  # table used to encapsulate network packets into MPLS frames
     # {in interface [in label, dest}  {out label, out interface}
-    frwd_tbl_D = {0: [None, 1, 'H3', 2], 1: [None, 2, 'H3', 3], 2: [6, None, 'H1', 0],
-                  3: [8, None, 'H2', 1]}  # table used to forward MPLS frames
+    frwd_tbl_D = {0: [None, 1, 'H3', 2], 1: [None, 2, 'H3', 3]}  # table used to forward MPLS frames
     # decap = true if needs decapsulation
     decap_tbl_D = {0: False, 1: False, 2: True, 3: True}  # table used to decapsulate network packets from MPLS frames
     router_a = Router(name='RA',
@@ -37,8 +36,7 @@ if __name__ == '__main__':
     object_L.append(router_a)
 
     encap_tbl_D = {0: False, 1: False}  # True if incapsulation needed
-    frwd_tbl_D = {0: [1, 4, 'H3', 1],
-                  1: [5, 6, 'H1', 0]}  # {in interface [in label, out label, destination, out interface}
+    frwd_tbl_D = {0: [1, 1, 'H3', 1]}  # {in interface [in label, out label, destination, out interface}
     decap_tbl_D = {0: False, 1: False}  # True if decapsulation is needed
     router_b = Router(name='RB',
                       intf_capacity_L=[500, 500],
@@ -49,8 +47,7 @@ if __name__ == '__main__':
     object_L.append(router_b)
 
     encap_tbl_D = {0: False, 1: False}  # True if incapsulation needed
-    frwd_tbl_D = {0: [2, 3, 'H3', 1],
-                  1: [7, 8, 'H2', 0]}  # {in interface [in label, out label, destination, out interface}
+    frwd_tbl_D = {0: [2, 2, 'H3', 1]}  # {in interface [in label, out label, destination, out interface}
 
     decap_tbl_D = {0: False, 1: False}  # True if decapsulation is needed
     router_c = Router(name='RC',
@@ -62,9 +59,8 @@ if __name__ == '__main__':
     object_L.append(router_c)
 
     encap_tbl_D = {0: False, 1: False, 2: True}  # True if incapsulation needed
-    frwd_tbl_D = {0: [2, None, 'H3', 2],
-                  1: [1, 4, 'H3', 2],
-                  2: [None, 5, 'H1', 0]}  # # {in interface [in label, out label, destination, out interface}
+    frwd_tbl_D = {0: [1, None, 'H3', 2],
+                  1: [2, None, 'H3', 2]}  # # {in interface [in label, out label, destination, out interface}
 
     decap_tbl_D = {0: True, 1: True, 2: False}  # True if decapsulation is needed
     router_d = Router(name='RD',
@@ -97,7 +93,7 @@ if __name__ == '__main__':
         t.start()
 
     # create some send events
-    for i in range(5):
+    for i in range(1):
         priority = i % 2
         host_1.udt_send('H3', 'MESSAGE_%d_FROM_H1' % i, priority)
         host_2.udt_send('H3', 'MESSAGE_%d_FROM_H2' % i, priority)

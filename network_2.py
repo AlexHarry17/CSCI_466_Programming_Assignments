@@ -297,10 +297,7 @@ class Router:
             except queue.Full:
                 print('%s: frame "%s" lost on interface %d' % (self, p, i))
                 pass
-        # else, not important (copied from queue full (except section))
-        # else:
-        #     print('%s: frame "%s" lost on interface %d' % (self, packet, i))
-        #     pass
+
 
 
 

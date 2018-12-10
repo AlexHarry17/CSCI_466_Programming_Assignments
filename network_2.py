@@ -258,42 +258,51 @@ class Router:
         # keys = self.frwd_tbl_D.keys()
         # table = self.frwd_tbl_D[i]
         # out = self.frwd_tbl_D[i][3]
-        in_label = int(m_fr[:1])
+        in_label = int(m_fr[:1]) # grabs the in label
         out_label = None
         out_interface = None
-
+        fr = None
         for j in self.frwd_tbl_D:
-            if self.frwd_tbl_D[j][0] == in_label:
-                out_label = self.frwd_tbl_D[j][1]
-                out_interface = self.frwd_tbl_D[j][3]
+            if self.frwd_tbl_D[j][0] == in_label: # checks that labels match
+                out_interface = self.frwd_tbl_D[j][3] # sets the out interface
                 break
-        if not self.decap_tbl_D[i]:# enters if there is an out label
+        if not self.decap_tbl_D[i]:# enters no decapsulation needed
             # out_label = self.frwd_tbl_D[i][1]  # sets out label based on forwarding table
             #
             # out_interface = self.frwd_tbl_D[i][3]  # sets out interface from forwarding table
             out_link_label = 'MPLS'
-            packet = MPLSFrame(out_label, payload).to_byte_S()  # makes packet an MPLS Frame
+            fr = LinkFrame(out_link_label, payload)  # makes packet an MPLS Frame
         # if table key isn't in forwarding table, check decapsulation table
-        else:
+            try:
+
+                fr = LinkFrame(out_link_label, payload)
+                self.intf_L[out_interface].put(fr.to_byte_S(), 'out', True)
+                print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, out_interface))
+            except queue.Full:
+                print('%s: frame "%s" lost on interface %d' % (self, p, i))
+                pass
+        else: # enters if decapsulation is needed
             # out_interface = self.frwd_tbl_D[i][3]  # gets out interface from forwarding table
             out_link_label = 'Network'
-            packet = payload
+            packet = m_fr[1:]   #packet without label
+            fr = LinkFrame(out_link_label, payload)  # makes packet an MPLS Frame
+
             # TODO not sure if needed/ where decapsulation occurs.
             print('%s: decapsulated packet "%s" from MPLS frame "%s"' % (self, packet, m_fr))
+            try:
 
+                fr = LinkFrame(out_link_label, packet)
+                self.intf_L[out_interface].put(fr.to_byte_S(), 'out', True)
+                print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, out_interface))
+            except queue.Full:
+                print('%s: frame "%s" lost on interface %d' % (self, p, i))
+                pass
         # else, not important (copied from queue full (except section))
         # else:
         #     print('%s: frame "%s" lost on interface %d' % (self, packet, i))
         #     pass
 
-        try:
 
-            fr = LinkFrame(out_link_label, payload)
-            self.intf_L[out_interface].put(fr.to_byte_S(), 'out', True)
-            print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, out_interface))
-        except queue.Full:
-            print('%s: frame "%s" lost on interface %d' % (self, p, i))
-            pass
 
     ## thread target for the host to keep forwarding data
     def run(self):

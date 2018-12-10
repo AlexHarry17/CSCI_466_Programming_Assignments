@@ -34,7 +34,7 @@ if __name__ == '__main__':
     object_L.append(router_a)
 
     encap_tbl_D = {0: False, 1: True} # True if incapsulation needed
-    frwd_tbl_D = {0: [1, None, 'H2', 1], 1: [None, 2, 'H1', 0]} # {in_interface, out interface}
+    frwd_tbl_D = {0: [1, 3, 'H2', 1], 1: [None, 2, 'H1', 0]} # {in_interface, out interface}
     decap_tbl_D = {0: True, 1: False} # True if decapsulation is needed
     router_b = Router(name='RB',
                       intf_capacity_L=[500, 100],
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         t.start()
 
     # create some send events
-    for i in range(5):
+    for i in range(1):
         priority = i % 2
         host_1.udt_send('H2', 'MESSAGE_%d_FROM_H1' % i, priority)
 
